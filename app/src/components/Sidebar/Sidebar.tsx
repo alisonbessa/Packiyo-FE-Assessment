@@ -1,41 +1,41 @@
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useState } from 'react'
 import {
   Box,
   IconButton,
   List,
   ListItemIcon,
   ListItemText,
-} from "@mui/material";
+} from '@mui/material'
 import {
   Dashboard,
   Inventory,
   ListAlt,
   KeyboardDoubleArrowLeft,
   KeyboardDoubleArrowRight,
-} from "@mui/icons-material";
-import { useNavigate } from "@remix-run/react";
-import { SidebarContainer, SidebarItem } from "./Sidebar.styles";
+} from '@mui/icons-material'
+import { useNavigate } from '@remix-run/react'
+import { SidebarContainer, SidebarItem } from './Sidebar.styles'
 
 export const Sidebar: FunctionComponent = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(false)
+  const navigate = useNavigate()
 
   const pages = [
-    { icon: <Dashboard />, label: "Summary", path: "/" },
-    { icon: <Inventory />, label: "Products", path: "/products" },
-    { icon: <ListAlt />, label: "Orders", path: "/orders" },
-  ];
+    { icon: <Dashboard />, label: 'Summary', path: '/' },
+    { icon: <Inventory />, label: 'Products', path: '/products' },
+    { icon: <ListAlt />, label: 'Orders', path: '/orders' },
+  ]
 
   const handleToggle = () => {
-    setCollapsed(!collapsed);
-  };
+    setCollapsed(!collapsed)
+  }
 
   const handleNavigation = (path: string) => {
-    navigate(path);
-  };
+    navigate(path)
+  }
 
   return (
-    <SidebarContainer collapsed={collapsed}>
+    <SidebarContainer collapsed={collapsed} data-testid="sidebar-container">
       <Box display="flex" justifyContent="flex-end" p={1}>
         <IconButton onClick={handleToggle}>
           {collapsed ? (
@@ -55,7 +55,7 @@ export const Sidebar: FunctionComponent = () => {
             <ListItemIcon style={{ minWidth: 0 }}>{page.icon}</ListItemIcon>
             {!collapsed && (
               <ListItemText
-                style={{ margin: "0 0 0 1rem" }}
+                style={{ margin: '0 0 0 1rem' }}
                 primary={page.label}
               />
             )}
@@ -63,5 +63,5 @@ export const Sidebar: FunctionComponent = () => {
         ))}
       </List>
     </SidebarContainer>
-  );
-};
+  )
+}

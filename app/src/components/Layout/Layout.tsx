@@ -1,6 +1,6 @@
-import * as React from "react";
-import { Sidebar } from "../Sidebar";
-import { Box } from "@mui/material";
+import * as React from 'react'
+import { Sidebar } from '../Sidebar'
+import { Box } from '@mui/material'
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -10,5 +10,5 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         {children}
       </Box>
     </Box>
-  );
-};
+  )
+}

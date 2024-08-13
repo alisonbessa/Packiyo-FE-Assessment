@@ -1,7 +1,7 @@
 import type { LoaderFunction } from '@remix-run/node'
 import { json, useLoaderData } from '@remix-run/react'
-import { ProductDetails } from '~/src/features/features/ProductDetails'
-import { ProductDetailsType } from '~/src/features/features/ProductDetails/types'
+import { ProductDetails } from '~/src/features/ProductDetails'
+import { ProductDetailsType } from '~/src/features/ProductDetails/types'
 
 export const loader: LoaderFunction = async ({ params }) => {
   const baseUrl = process.env.API_URL

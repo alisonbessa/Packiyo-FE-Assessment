@@ -17,8 +17,8 @@ import { QueryStatsOutlined } from '@mui/icons-material'
 import { useSearchParams } from '@remix-run/react'
 import { useState } from 'react'
 import { ProductsProps } from './Products.types'
-import { formatPrice } from '~/src/helpers/formatCurrency'
 import { FilterButtons, FilterWrapper } from './Products.styles'
+import { formatPrice } from '../../helpers/formatCurrency'
 
 export const Products = ({
   products,

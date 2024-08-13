@@ -6,7 +6,11 @@
     "build": "remix build",
     "dev": "remix dev --manual",
     "start": "remix-serve ./build/index.js",
-    "typecheck": "tsc"
+    "lint": "tsc --noEmit && eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint . --fix",
+    "format": "prettier --write .",
+    "typecheck": "tsc",
+    "test": "vitest run",
+    "prepare": "husky"
   },
   "dependencies": {
     "@emotion/cache": "latest",
@@ -38,6 +42,7 @@
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
     "@types/jest": "^29.5.12",
+    "@types/node": "^22.2.0",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "husky": "^9.1.4",

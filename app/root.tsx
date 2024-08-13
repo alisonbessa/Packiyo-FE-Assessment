@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react'
 import {
   Links,
   LiveReload,
@@ -8,37 +8,39 @@ import {
   ScrollRestoration,
   useRouteError,
   isRouteErrorResponse,
-} from "@remix-run/react";
-import { withEmotionCache } from "@emotion/react";
-import { unstable_useEnhancedEffect as useEnhancedEffect } from "@mui/material";
-import theme from "./src/styles/theme";
-import ClientStyleContext from "./src/styles/ClientStyleContext";
-import { Layout } from "./src/components/Layout";
+  useNavigation,
+} from '@remix-run/react'
+import { withEmotionCache } from '@emotion/react'
+import { unstable_useEnhancedEffect as useEnhancedEffect } from '@mui/material'
+import theme from './src/styles/theme'
+import ClientStyleContext from './src/styles/ClientStyleContext'
+import { Layout } from './src/components/Layout'
+import { LoadingOverlay } from './src/components/LoadingOverlay'
 
 interface DocumentProps {
-  children: React.ReactNode;
-  title?: string;
+  children: React.ReactNode
+  title?: string
 }
 
 const Document = withEmotionCache(
   ({ children, title }: DocumentProps, emotionCache) => {
-    const clientStyleData = React.useContext(ClientStyleContext);
+    const clientStyleData = React.useContext(ClientStyleContext)
 
     // Only executed on client
     useEnhancedEffect(() => {
       // re-link sheet container
-      emotionCache.sheet.container = document.head;
+      emotionCache.sheet.container = document.head
       // re-inject tags
-      const tags = emotionCache.sheet.tags;
-      emotionCache.sheet.flush();
+      const tags = emotionCache.sheet.tags
+      emotionCache.sheet.flush()
       tags.forEach((tag) => {
         // eslint-disable-next-line no-underscore-dangle
-        (emotionCache.sheet as any)._insertTag(tag);
-      });
+        ;(emotionCache.sheet as any)._insertTag(tag)
+      })
       // reset cache to reapply global styles
-      clientStyleData.reset();
+      clientStyleData.reset()
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [])
 
     return (
       <html lang="en">
@@ -71,28 +73,32 @@ const Document = withEmotionCache(
           <LiveReload />
         </body>
       </html>
-    );
+    )
   }
-);
+)
 
 // https://remix.run/docs/en/main/route/component
 // https://remix.run/docs/en/main/file-conventions/routes
 export default function App() {
+  const { state } = useNavigation()
+  const isLoading = state === 'loading'
+
   return (
     <Document>
       <Layout>
         <Outlet />
+        {isLoading && <LoadingOverlay />}
       </Layout>
     </Document>
-  );
+  )
 }
 
 // https://remix.run/docs/en/main/route/error-boundary
 export function ErrorBoundary() {
-  const error = useRouteError();
+  const error = useRouteError()
 
   if (isRouteErrorResponse(error)) {
-    let message;
+    let message
     switch (error.status) {
       case 401:
         message = (
@@ -100,16 +106,16 @@ export function ErrorBoundary() {
             Oops! Looks like you tried to visit a page that you do not have
             access to.
           </p>
-        );
-        break;
+        )
+        break
       case 404:
         message = (
           <p>Oops! Looks like you tried to visit a page that does not exist.</p>
-        );
-        break;
+        )
+        break
 
       default:
-        throw new Error(error.data || error.statusText);
+        throw new Error(error.data || error.statusText)
     }
 
     return (
@@ -121,11 +127,11 @@ export function ErrorBoundary() {
           {message}
         </Layout>
       </Document>
-    );
+    )
   }
 
   if (error instanceof Error) {
-    console.error(error);
+    console.error(error)
     return (
       <Document title="Error!">
         <Layout>
@@ -140,8 +146,8 @@ export function ErrorBoundary() {
           </div>
         </Layout>
       </Document>
-    );
+    )
   }
 
-  return <h1>Unknown Error</h1>;
+  return <h1>Unknown Error</h1>
 }

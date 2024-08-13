@@ -6,10 +6,12 @@ export interface ProductDetailsAttributes {
   barcode: string
   image: string
   description?: string
-  width?: number
-  height?: number
-  length?: number
-  weight?: number
+  width: number | null
+  height: number | null
+  length: number | null
+  weight: number | null
+  created_at: string
+  updated_at: string
 }
 
 export interface ProductDetailsType {

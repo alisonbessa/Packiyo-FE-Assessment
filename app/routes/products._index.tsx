@@ -1,7 +1,7 @@
 import type { LoaderFunction, MetaFunction } from '@remix-run/node'
 import { json, useLoaderData } from '@remix-run/react'
-import { Product } from '~/src/components/ProductCard/productCard.types'
 import { Products } from '~/src/features/Products'
+import { Product } from '~/src/features/Products/Products.types'
 
 interface ProductsResponse {
   data: Product[]

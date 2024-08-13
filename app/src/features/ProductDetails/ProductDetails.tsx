@@ -1,63 +1,127 @@
-import { Container, Typography, Button, Card, CardContent, CardMedia } from '@mui/material';
-import { Link } from '@remix-run/react';
-import type { ProductDetailsType } from './types';
+import {
+  Container,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  CardMedia,
+  Grid,
+  Paper,
+  Box,
+} from '@mui/material'
+import { Link } from '@remix-run/react'
+import type { ProductDetailsType } from './types'
+import { formatPrice } from '../../helpers/formatCurrency'
 
 interface ProductDetailsProps {
-  product: ProductDetailsType;
+  product: ProductDetailsType
 }
 
 export function ProductDetails({ product }: ProductDetailsProps) {
-  const { attributes } = product;
-  const { sku, name, price, quantity_available, barcode, image, description, width, height, length, weight } = attributes;
+  const { attributes } = product
+  const {
+    sku,
+    name,
+    price,
+    quantity_available,
+    barcode,
+    image,
+    description,
+    width,
+    height,
+    length,
+    weight,
+  } = attributes
 
   return (
     <Container>
       <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
         {name}
       </Typography>
-      <Card variant="outlined" sx={{ mb: 2 }}>
-        <CardMedia
-          component="img"
-          height="300"
-          image={image}
-          alt={name}
-        />
-        <CardContent>
-          <Typography variant="h5" component="div">
-            {name}
-          </Typography>
-          <Typography sx={{ mb: 1.5 }} color="text.secondary">
-            SKU: {sku}
-          </Typography>
-          <Typography variant="body2">
-            Price: ${price}
-          </Typography>
-          <Typography variant="body2">
-            Quantity Available: {quantity_available}
-          </Typography>
-          <Typography variant="body2">
-            Barcode: {barcode}
-          </Typography>
-          {description && (
-            <Typography variant="body2">
-              Description: {description}
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Card
+            sx={{
+              display: 'flex',
+              mb: 2,
+            }}
+            variant="outlined"
+          >
+            <CardMedia
+              component="img"
+              height="300"
+              width="300"
+              image={image || 'https://via.placeholder.com/300'}
+              alt={name}
+            />
+            <CardContent
+              style={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Box>
+                <Typography variant="h4" component="div">
+                  {name}
+                </Typography>
+                <Typography sx={{ mb: 0.5 }} color="text.secondary">
+                  SKU: <strong>{sku}</strong>
+                </Typography>
+                <Typography sx={{ mb: 0.5 }} variant="body2">
+                  Quantity Available: <strong>{quantity_available}</strong>
+                </Typography>
+                <Typography sx={{ mb: 0.5 }} variant="body2">
+                  Barcode: <strong>{barcode}</strong>
+                </Typography>
+                {description && (
+                  <Typography style={{ padding: 16 }} variant="body2">
+                    Description: <strong>{description}</strong>
+                  </Typography>
+                )}
+              </Box>
+              <Box style={{ padding: 2 }}>
+                <Typography variant="h3">
+                  <strong>{formatPrice(price)}</strong>
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12}>
+          <Paper variant="outlined" sx={{ p: 2 }}>
+            <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+              Technical Details
             </Typography>
-          )}
-          {width && (
-            <Typography variant="body2">
-              Dimensions: {width}W x {height}H x {length}L cm
+            {width || height || length ? (
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                <strong>Dimensions:</strong> {width}W x {height}H x {length}L cm
+              </Typography>
+            ) : null}
+            {weight ? (
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                <strong>Weight:</strong> {weight} kg
+              </Typography>
+            ) : null}
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              <strong>Created At:</strong>{' '}
+              {new Date(attributes.created_at).toLocaleDateString()}
             </Typography>
-          )}
-          {weight && (
             <Typography variant="body2">
-              Weight: {weight} kg
+              <strong>Last Updated:</strong>{' '}
+              {new Date(attributes.updated_at).toLocaleDateString()}
             </Typography>
-          )}
-        </CardContent>
-      </Card>
-      <Button variant="contained" component={Link} to="/products">
+          </Paper>
+        </Grid>
+      </Grid>
+      <Button
+        variant="contained"
+        component={Link}
+        to="/products"
+        sx={{ mt: 3 }}
+      >
         Back to Products
       </Button>
     </Container>
-  );
+  )
 }

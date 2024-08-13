@@ -27,6 +27,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   }
 
   const data = await response.json()
+  console.log('data', data.data)
   return json(data.data)
 }
 

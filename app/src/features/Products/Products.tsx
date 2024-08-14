@@ -95,6 +95,8 @@ export const Products = ({
             onChange={handleFilterChange}
             fullWidth
           />
+        </Box>
+        <Box width="100%" display="flex" gap="1rem" justifyContent="flex-end">
           <FilterButtons
             variant="contained"
             color="primary"

@@ -7,6 +7,7 @@ export const FilterWrapper = styled(Box)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   boxShadow: theme.shadows[1],
   display: 'flex',
+  gap: '1rem',
   flexDirection: 'column',
   alignItems: 'flex-start',
   justifyContent: 'space-between',

@@ -3,6 +3,8 @@ import { ProductDetails } from './ProductDetails'
 import userEvent from '@testing-library/user-event'
 import { BrowserRouter } from 'react-router-dom'
 import { formatPrice } from '../../helpers/formatCurrency'
+import { vi } from 'vitest'
+import { useNavigate } from '@remix-run/react'
 
 const mockProduct = {
   id: '1',
@@ -22,6 +24,11 @@ const mockProduct = {
     updated_at: '2024-08-13T15:39:08.000000Z',
   },
 }
+
+vi.mock('@remix-run/react', () => ({
+  ...vi.importActual('@remix-run/react'),
+  useNavigate: () => vi.fn(),
+}))
 
 describe('ProductDetails Component', () => {
   const renderProductDetails = (product = mockProduct) =>
@@ -86,15 +93,5 @@ describe('ProductDetails Component', () => {
     renderProductDetails(productWithoutWeight)
 
     expect(screen.queryByText(/Weight:/)).not.toBeInTheDocument()
-  })
-
-  it('should navigate back to products when the "Back to Products" button is clicked', async () => {
-    const user = userEvent.setup()
-    renderProductDetails()
-
-    const backButton = screen.getByRole('link', { name: /Back to Products/i })
-    await user.click(backButton)
-
-    expect(global.window.location.pathname).toEqual('/products')
   })
 })

@@ -9,7 +9,7 @@ import {
   Paper,
   Box,
 } from '@mui/material'
-import { Link } from '@remix-run/react'
+import { useNavigate } from '@remix-run/react'
 import type { ProductDetailsType } from './types'
 import { formatPrice } from '../../helpers/formatCurrency'
 
@@ -18,6 +18,8 @@ interface ProductDetailsProps {
 }
 
 export function ProductDetails({ product }: ProductDetailsProps) {
+  const navigate = useNavigate()
+
   const { attributes } = product
   const {
     sku,
@@ -114,13 +116,8 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           </Paper>
         </Grid>
       </Grid>
-      <Button
-        variant="contained"
-        component={Link}
-        to="/products"
-        sx={{ mt: 3 }}
-      >
-        Back to Products
+      <Button variant="contained" onClick={() => navigate(-1)} sx={{ mt: 3 }}>
+        Previous
       </Button>
     </Container>
   )

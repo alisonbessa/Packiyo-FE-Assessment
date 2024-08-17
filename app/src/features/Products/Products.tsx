@@ -130,8 +130,6 @@ export const Products = ({ products, meta, customers }: ProductsProps) => {
     }
   }, [fetcher.state, fetcher.data])
 
-  console.log('state', fetcher.state)
-
   return (
     <Container>
       {fetcher.state !== 'idle' && <LoadingOverlay />}

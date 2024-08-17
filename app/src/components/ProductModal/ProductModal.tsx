@@ -121,8 +121,6 @@ export const ProductModal: React.FC<ProductModalProps> = ({
     }
   }, [fetcher.state, fetcher.data])
 
-  console.log('dsa', fetcher.state)
-
   return (
     <>
       {fetcher.state !== 'idle' && <LoadingOverlay />}

@@ -1,4 +1,4 @@
-import { FunctionComponent, useState } from 'react'
+import { FunctionComponent } from 'react'
 import {
   Box,
   IconButton,
@@ -16,8 +16,15 @@ import {
 import { useNavigate } from '@remix-run/react'
 import { SidebarContainer, SidebarItem } from './Sidebar.styles'
 
-export const Sidebar: FunctionComponent = () => {
-  const [collapsed, setCollapsed] = useState(false)
+interface SidebarProps {
+  collapsed: boolean
+  onToggle: () => void
+}
+
+export const Sidebar: FunctionComponent<SidebarProps> = ({
+  collapsed,
+  onToggle,
+}) => {
   const navigate = useNavigate()
 
   const pages = [
@@ -26,10 +33,6 @@ export const Sidebar: FunctionComponent = () => {
     { icon: <ListAlt />, label: 'Orders', path: '/orders' },
   ]
 
-  const handleToggle = () => {
-    setCollapsed(!collapsed)
-  }
-
   const handleNavigation = (path: string) => {
     navigate(path)
   }
@@ -37,7 +40,7 @@ export const Sidebar: FunctionComponent = () => {
   return (
     <SidebarContainer collapsed={collapsed} data-testid="sidebar-container">
       <Box display="flex" justifyContent="flex-end" p={1}>
-        <IconButton onClick={handleToggle}>
+        <IconButton onClick={onToggle}>
           {collapsed ? (
             <KeyboardDoubleArrowRight />
           ) : (

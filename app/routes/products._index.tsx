@@ -1,5 +1,9 @@
-import type { LoaderFunction, MetaFunction } from '@remix-run/node'
-import { json, useLoaderData } from '@remix-run/react'
+import type {
+  ActionFunction,
+  LoaderFunction,
+  MetaFunction,
+} from '@remix-run/node'
+import { json, redirect, useLoaderData } from '@remix-run/react'
 import { Products } from '~/src/features/Products'
 import { Product } from '~/src/features/Products/Products.types'
 
@@ -21,7 +25,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const url = new URL(request.url)
   const page = url.searchParams.get('page') || '1'
-  const perPage = url.searchParams.get('perPage') || '10'
+  const perPage = url.searchParams.get('perPage') || '8'
   const name = url.searchParams.get('name')
   const sku = url.searchParams.get('sku')
 
@@ -59,14 +63,46 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const meta: MetaFunction = () => [{ title: 'Products' }]
 
+export const action: ActionFunction = async ({ request }) => {
+  console.log({ request })
+  const BASE_URL = process.env.API_URL
+  const TOKEN = process.env.API_TOKEN
+
+  if (!BASE_URL || !TOKEN) {
+    throw new Error(
+      'API URL and Token must be provided in the environment variables.'
+    )
+  }
+
+  const formData = new URLSearchParams(await request.text())
+
+  if (request.method === 'DELETE') {
+    const id = formData.get('id')
+
+    if (!id) {
+      throw new Response('Product ID is required', { status: 400 })
+    }
+
+    const response = await fetch(`${BASE_URL}/products/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${TOKEN}`,
+        Accept: 'application/vnd.api+json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Response('Failed to delete product', {
+        status: response.status,
+      })
+    }
+
+    return redirect('/products')
+  }
+}
+
 export default function ProductsRoute() {
   const { data: products, meta } = useLoaderData<ProductsResponse>()
 
-  return (
-    <Products
-      products={products}
-      currentPage={meta.page.currentPage}
-      lastPage={meta.page.lastPage}
-    />
-  )
+  return <Products products={products} meta={meta} />
 }

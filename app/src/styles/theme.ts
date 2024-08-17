@@ -17,17 +17,17 @@ const theme = createTheme({
     },
   },
   components: {
-    MuiButtonGroup: {
-      styleOverrides: {
-        root: {
-          backgroundColor: '#ffffff',
-        },
-      },
-    },
     MuiCssBaseline: {
       styleOverrides: {
         body: {
           backgroundColor: '#f0f0f0',
+        },
+      },
+    },
+    MuiButtonGroup: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#ffffff',
         },
       },
     },

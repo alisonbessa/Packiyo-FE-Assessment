@@ -8,35 +8,52 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button,
+  IconButton,
   ButtonGroup,
   Box,
   TextField,
+  Button,
+  Tooltip,
 } from '@mui/material'
-import { QueryStatsOutlined } from '@mui/icons-material'
-import { useSearchParams } from '@remix-run/react'
-import { useState } from 'react'
+import { QueryStatsOutlined, Edit, Delete } from '@mui/icons-material'
+import { useSearchParams, useFetcher } from '@remix-run/react'
+import { ChangeEvent, useState } from 'react'
 import { ProductsProps } from './Products.types'
 import { FilterButtons, FilterWrapper } from './Products.styles'
 import { formatPrice } from '../../helpers/formatCurrency'
+import { ConfirmationModal } from '../../components/ConfirmationModal'
 
-export const Products = ({
-  products,
-  currentPage,
-  lastPage,
-}: ProductsProps) => {
+export const Products = ({ products, meta }: ProductsProps) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [filters, setFilters] = useState({
     name: searchParams.get('name') || '',
     sku: searchParams.get('sku') || '',
   })
+  const [openModal, setOpenModal] = useState(false)
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null
+  )
+  const fetcher = useFetcher()
+
+  const { currentPage, lastPage, perPage, total } = meta.page
+
+  const pages = []
+  for (let i = 1; i <= lastPage; i++) {
+    pages.push(i)
+  }
+
+  const firstItemFromPage = (currentPage - 1) * perPage + 1
+  const lastItemFromPAge =
+    currentPage === lastPage ? total : currentPage * perPage
+
+  const tableItemsMessage = `${firstItemFromPage}-${lastItemFromPAge} of ${total} products`
 
   const handlePageChange = (newPage: number) => {
     searchParams.set('page', String(newPage))
     setSearchParams(searchParams)
   }
 
-  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFilterChange = (event: ChangeEvent<HTMLInputElement>) => {
     setFilters({
       ...filters,
       [event.target.name]: event.target.value,
@@ -66,9 +83,26 @@ export const Products = ({
     setSearchParams(searchParams)
   }
 
-  const pages = []
-  for (let i = 1; i <= lastPage; i++) {
-    pages.push(i)
+  const handleDeleteClick = (id: string) => {
+    setSelectedProductId(id)
+    setOpenModal(true)
+  }
+
+  const confirmDelete = () => {
+    if (selectedProductId) {
+      fetcher.submit(
+        { id: selectedProductId },
+        {
+          method: 'DELETE',
+          action: '/products',
+        }
+      )
+      setOpenModal(false)
+    }
+  }
+
+  const cancelDelete = () => {
+    setOpenModal(false)
   }
 
   return (
@@ -154,19 +188,42 @@ export const Products = ({
                       {product.attributes.quantity_backordered}
                     </TableCell>
                     <TableCell align="center">
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        href={`/products/${product.id}`}
-                      >
-                        <QueryStatsOutlined />
-                      </Button>
+                      <Tooltip title="See item details">
+                        <IconButton
+                          color="primary"
+                          href={`/products/${product.id}`}
+                        >
+                          <QueryStatsOutlined />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Edit this item">
+                        <IconButton color="primary" onClick={() => null}>
+                          <Edit />
+                        </IconButton>
+                      </Tooltip>
+
+                      <Tooltip title="Delete this item">
+                        <IconButton
+                          color="primary"
+                          onClick={() => handleDeleteClick(product.id)}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+            <Box
+              sx={{
+                mt: 2,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Typography variant="body2">{tableItemsMessage}</Typography>
               <ButtonGroup>
                 <Button
                   disabled={currentPage === 1}
@@ -203,6 +260,13 @@ export const Products = ({
           </>
         )}
       </TableContainer>
+      <ConfirmationModal
+        title="Are you sure?"
+        open={openModal}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        message="This action will permanently delete this product"
+      />
     </Container>
   )
 }

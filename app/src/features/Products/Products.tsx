@@ -22,25 +22,30 @@ import { ProductsProps } from './Products.types'
 import { FilterButtons, FilterWrapper } from './Products.styles'
 import { formatPrice } from '../../helpers/formatCurrency'
 import { ConfirmationModal } from '../../components/ConfirmationModal'
+import { ProductModal } from '~/src/components/ProductModal'
 
-export const Products = ({ products, meta }: ProductsProps) => {
+export const Products = ({ products, meta, customers }: ProductsProps) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [filters, setFilters] = useState({
     name: searchParams.get('name') || '',
     sku: searchParams.get('sku') || '',
   })
   const [openModal, setOpenModal] = useState(false)
+  const [openDeleteModal, setOpenDeleteModal] = useState(false)
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null
   )
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
   const fetcher = useFetcher()
-
+  console.log({ meta })
   const { currentPage, lastPage, perPage, total } = meta.page
 
   const pages = []
   for (let i = 1; i <= lastPage; i++) {
     pages.push(i)
   }
+
+  console.log({ customers })
 
   const firstItemFromPage = (currentPage - 1) * perPage + 1
   const lastItemFromPAge =
@@ -60,7 +65,7 @@ export const Products = ({ products, meta }: ProductsProps) => {
     })
   }
 
-  const handleFindClick = () => {
+  const handleFind = () => {
     if (filters.name) {
       searchParams.set('name', filters.name)
     } else {
@@ -76,16 +81,27 @@ export const Products = ({ products, meta }: ProductsProps) => {
     setSearchParams(searchParams)
   }
 
-  const handleClearClick = () => {
+  const handleClear = () => {
     setFilters({ name: '', sku: '' })
     searchParams.delete('name')
     searchParams.delete('sku')
     setSearchParams(searchParams)
   }
 
-  const handleDeleteClick = (id: string) => {
+  const handleCreate = () => {
+    setModalMode('create')
+    setOpenModal(true)
+  }
+
+  const handleEdit = (id: string) => {
+    setModalMode('edit')
     setSelectedProductId(id)
     setOpenModal(true)
+  }
+
+  const handleDelete = (id: string) => {
+    setSelectedProductId(id)
+    setOpenDeleteModal(true)
   }
 
   const confirmDelete = () => {
@@ -97,19 +113,29 @@ export const Products = ({ products, meta }: ProductsProps) => {
           action: '/products',
         }
       )
-      setOpenModal(false)
+      setOpenDeleteModal(false)
     }
   }
 
   const cancelDelete = () => {
-    setOpenModal(false)
+    setOpenDeleteModal(false)
   }
 
   return (
     <Container>
-      <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-        Products
-      </Typography>
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        mb={2}
+      >
+        <Typography variant="h4" component="h1">
+          Products
+        </Typography>
+        <Button variant="contained" onClick={handleCreate}>
+          New Product
+        </Button>
+      </Box>
       <FilterWrapper>
         <Typography variant="h6" component="h2" sx={{ mb: 1 }}>
           Filters
@@ -134,14 +160,14 @@ export const Products = ({ products, meta }: ProductsProps) => {
           <FilterButtons
             variant="contained"
             color="primary"
-            onClick={handleFindClick}
+            onClick={handleFind}
           >
             Find
           </FilterButtons>
           <FilterButtons
             variant="outlined"
             color="secondary"
-            onClick={handleClearClick}
+            onClick={handleClear}
           >
             Clear
           </FilterButtons>
@@ -197,7 +223,10 @@ export const Products = ({ products, meta }: ProductsProps) => {
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Edit this item">
-                        <IconButton color="primary" onClick={() => null}>
+                        <IconButton
+                          color="primary"
+                          onClick={() => handleEdit(product.id)}
+                        >
                           <Edit />
                         </IconButton>
                       </Tooltip>
@@ -205,7 +234,7 @@ export const Products = ({ products, meta }: ProductsProps) => {
                       <Tooltip title="Delete this item">
                         <IconButton
                           color="primary"
-                          onClick={() => handleDeleteClick(product.id)}
+                          onClick={() => handleDelete(product.id)}
                         >
                           <Delete />
                         </IconButton>
@@ -262,10 +291,21 @@ export const Products = ({ products, meta }: ProductsProps) => {
       </TableContainer>
       <ConfirmationModal
         title="Are you sure?"
-        open={openModal}
+        open={openDeleteModal}
         onClose={cancelDelete}
         onConfirm={confirmDelete}
         message="This action will permanently delete this product"
+      />
+      <ProductModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        mode={modalMode}
+        product={
+          modalMode === 'edit'
+            ? products.find((product) => product.id === selectedProductId)
+                ?.attributes
+            : {}
+        }
       />
     </Container>
   )

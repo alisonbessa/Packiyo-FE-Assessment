@@ -17,6 +17,7 @@ interface ProductsResponse {
       total: number
     }
   }
+  customers: any
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -57,8 +58,19 @@ export const loader: LoaderFunction = async ({ request }) => {
     throw new Response('Failed to fetch products', { status: response.status })
   }
 
+  const customersList =
+    (await fetch(`${BASE_URL}/customers`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${TOKEN}`,
+        Accept: 'application/vnd.api+json',
+      },
+    })) || {}
+
   const data: ProductsResponse = await response.json()
-  return json(data)
+  const customers: any = await customersList.json()
+  console.log({ customers })
+  return json({ ...data, customers })
 }
 
 export const meta: MetaFunction = () => [{ title: 'Products' }]
@@ -102,7 +114,23 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export default function ProductsRoute() {
-  const { data: products, meta } = useLoaderData<ProductsResponse>()
+  const { data: products, meta, customers } = useLoaderData<ProductsResponse>()
 
-  return <Products products={products} meta={meta} />
+  function getCustomersWithNames(data: any[], included: any[]): any[] {
+    return data.map((customer) => {
+      const relationId = customer.relationships.contact_information.data.id
+      const relatedInfo = included.find((item) => item.id === relationId)
+      return {
+        id: customer.id,
+        name: relatedInfo ? relatedInfo.attributes.name : 'Unknown',
+      }
+    })
+  }
+
+  const customersList = getCustomersWithNames(
+    customers.data,
+    customers.included
+  )
+
+  return <Products products={products} meta={meta} customers={customersList} />
 }

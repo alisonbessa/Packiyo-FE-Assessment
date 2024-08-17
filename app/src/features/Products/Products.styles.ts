@@ -18,5 +18,5 @@ export const FilterButtonWrapper = styled(Box)(({ theme }) => ({
 }))
 
 export const FilterButtons = styled(Button)(({ theme }) => ({
-  paddingInline: theme.spacing(6),
+  minWidth: '80px',
 }))

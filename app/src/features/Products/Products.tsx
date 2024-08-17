@@ -17,12 +17,14 @@ import {
 } from '@mui/material'
 import { QueryStatsOutlined, Edit, Delete } from '@mui/icons-material'
 import { useSearchParams, useFetcher } from '@remix-run/react'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { ProductsProps } from './Products.types'
 import { FilterButtons, FilterWrapper } from './Products.styles'
 import { formatPrice } from '../../helpers/formatCurrency'
 import { ConfirmationModal } from '../../components/ConfirmationModal'
 import { ProductModal } from '~/src/components/ProductModal'
+import { createProductData } from '~/src/helpers/getProductData'
+import { LoadingOverlay } from '~/src/components/LoadingOverlay'
 
 export const Products = ({ products, meta, customers }: ProductsProps) => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -37,15 +39,13 @@ export const Products = ({ products, meta, customers }: ProductsProps) => {
   )
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
   const fetcher = useFetcher()
-  console.log({ meta })
+
   const { currentPage, lastPage, perPage, total } = meta.page
 
   const pages = []
   for (let i = 1; i <= lastPage; i++) {
     pages.push(i)
   }
-
-  console.log({ customers })
 
   const firstItemFromPage = (currentPage - 1) * perPage + 1
   const lastItemFromPAge =
@@ -113,16 +113,28 @@ export const Products = ({ products, meta, customers }: ProductsProps) => {
           action: '/products',
         }
       )
-      setOpenDeleteModal(false)
     }
+
+    setOpenDeleteModal(false)
   }
 
   const cancelDelete = () => {
     setOpenDeleteModal(false)
   }
 
+  useEffect(() => {
+    if (fetcher.state === 'idle' && fetcher.data?.success) {
+      const currentUrl = window.location.pathname + window.location.search
+      fetcher.load(currentUrl)
+      setOpenDeleteModal(false)
+    }
+  }, [fetcher.state, fetcher.data])
+
+  console.log('state', fetcher.state)
+
   return (
     <Container>
+      {fetcher.state !== 'idle' && <LoadingOverlay />}
       <Box
         display="flex"
         alignItems="center"
@@ -166,7 +178,7 @@ export const Products = ({ products, meta, customers }: ProductsProps) => {
           </FilterButtons>
           <FilterButtons
             variant="outlined"
-            color="secondary"
+            color="primary"
             onClick={handleClear}
           >
             Clear
@@ -296,16 +308,15 @@ export const Products = ({ products, meta, customers }: ProductsProps) => {
         onConfirm={confirmDelete}
         message="This action will permanently delete this product"
       />
+
       <ProductModal
         open={openModal}
         onClose={() => setOpenModal(false)}
         mode={modalMode}
-        product={
-          modalMode === 'edit'
-            ? products.find((product) => product.id === selectedProductId)
-                ?.attributes
-            : {}
-        }
+        customers={customers}
+        product={createProductData(
+          products.find((product) => product.id === selectedProductId)
+        )}
       />
     </Container>
   )

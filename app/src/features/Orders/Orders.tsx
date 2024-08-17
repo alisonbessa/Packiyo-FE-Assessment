@@ -149,7 +149,7 @@ export function Orders({ orders, currentPage, lastPage }: OrdersProps) {
             </FilterButtons>
             <FilterButtons
               variant="outlined"
-              color="secondary"
+              color="primary"
               onClick={handleClearClick}
             >
               Clear

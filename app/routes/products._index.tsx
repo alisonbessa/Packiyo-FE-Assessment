@@ -5,20 +5,12 @@ import type {
 } from '@remix-run/node'
 import { json, redirect, useLoaderData } from '@remix-run/react'
 import { Products } from '~/src/features/Products'
-import { Product } from '~/src/features/Products/Products.types'
-
-interface ProductsResponse {
-  data: Product[]
-  meta: {
-    page: {
-      currentPage: number
-      lastPage: number
-      perPage: number
-      total: number
-    }
-  }
-  customers: any
-}
+import {
+  Customer,
+  Included,
+  Product,
+  ProductsResponse,
+} from '~/src/features/Products/Products.types'
 
 export const loader: LoaderFunction = async ({ request }) => {
   const BASE_URL = process.env.API_URL
@@ -37,6 +29,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   let query = `${BASE_URL}/products?page[number]=${page}&page[size]=${perPage}`
+
+  if (name || sku) {
+    query = `${BASE_URL}/products?page[size]=${perPage}`
+  }
 
   if (name) {
     query += `&filter[name]=${name}`
@@ -58,25 +54,29 @@ export const loader: LoaderFunction = async ({ request }) => {
     throw new Response('Failed to fetch products', { status: response.status })
   }
 
-  const customersList =
-    (await fetch(`${BASE_URL}/customers`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${TOKEN}`,
-        Accept: 'application/vnd.api+json',
-      },
-    })) || {}
+  const customersResponse = await fetch(`${BASE_URL}/customers`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${TOKEN}`,
+      Accept: 'application/vnd.api+json',
+    },
+  })
+
+  if (!customersResponse.ok) {
+    throw new Response('Failed to fetch customers', {
+      status: customersResponse.status,
+    })
+  }
 
   const data: ProductsResponse = await response.json()
-  const customers: any = await customersList.json()
-  console.log({ customers })
+  const customers = await customersResponse.json()
+
   return json({ ...data, customers })
 }
 
 export const meta: MetaFunction = () => [{ title: 'Products' }]
 
 export const action: ActionFunction = async ({ request }) => {
-  console.log({ request })
   const BASE_URL = process.env.API_URL
   const TOKEN = process.env.API_TOKEN
 
@@ -109,14 +109,17 @@ export const action: ActionFunction = async ({ request }) => {
       })
     }
 
-    return redirect('/products')
+    return json({ success: true })
   }
 }
 
 export default function ProductsRoute() {
   const { data: products, meta, customers } = useLoaderData<ProductsResponse>()
 
-  function getCustomersWithNames(data: any[], included: any[]): any[] {
+  const getCustomersWithNames = (
+    data: Customer[],
+    included: Included[]
+  ): { id: string; name: string }[] => {
     return data.map((customer) => {
       const relationId = customer.relationships.contact_information.data.id
       const relatedInfo = included.find((item) => item.id === relationId)

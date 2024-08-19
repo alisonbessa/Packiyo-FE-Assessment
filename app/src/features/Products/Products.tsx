@@ -22,9 +22,9 @@ import { ProductsProps } from './Products.types'
 import { FilterButtons, FilterWrapper } from './Products.styles'
 import { formatPrice } from '../../helpers/formatCurrency'
 import { ConfirmationModal } from '../../components/ConfirmationModal'
-import { ProductModal } from '~/src/components/ProductModal'
-import { createProductData } from '~/src/helpers/getProductData'
-import { LoadingOverlay } from '~/src/components/LoadingOverlay'
+import { ProductModal } from '../../components/ProductModal'
+import { createProductData } from '../../helpers/getProductData'
+import { LoadingOverlay } from '../../components/LoadingOverlay'
 
 export const Products = ({ products, meta, customers }: ProductsProps) => {
   const [searchParams, setSearchParams] = useSearchParams()
